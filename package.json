@@ -7,7 +7,8 @@
     "start": "bun run src/launcher/index.ts",
     "mcp-server": "bun run src/mcp-server/index.ts",
     "check": "tsc --noEmit",
-    "test": "bun test"
+    "test": "bun test",
+    "validate": "bun run check && bun test"
   },
   "devDependencies": {
     "@types/bun": "latest"
