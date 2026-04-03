@@ -73,6 +73,7 @@ export function createDiscordClient(): DiscordClient {
   });
 
   const handlers = new Map<string, EventHandler>();
+  const registeredListeners = new Map<string, (...args: unknown[]) => void>();
 
   function messageToEventData(message: Message | PartialMessage): EventData {
     return {
@@ -103,48 +104,63 @@ export function createDiscordClient(): DiscordClient {
     },
 
     onEvent(type: EventType, handler: EventHandler) {
-      handlers.set(type, handler);
+      // Remove existing listener for this event type to prevent accumulation
       const discordEvent = discordEventMap[type];
       if (!discordEvent) return;
 
-      if (type === "message_create" || type === "message_update") {
-        client.on(discordEvent, (message: Message | PartialMessage) => {
-          const h = handlers.get(type);
-          if (h) h(messageToEventData(message));
-        });
-      } else if (type === "reaction_add") {
-        client.on(
-          discordEvent,
-          (
-            reaction: MessageReaction | PartialMessageReaction,
-            user: User | PartialUser,
-          ) => {
-            const h = handlers.get(type);
-            if (h) {
-              h({
-                message_id: reaction.message.id,
-                channel_id: reaction.message.channelId,
-                guild_id: reaction.message.guildId ?? "",
-                author: {
-                  id: user.id,
-                  username: (user as User).username ?? "",
-                  bot: user.bot ?? false,
-                },
-                content: "",
-                timestamp: new Date().toISOString(),
-                emoji: reaction.emoji.name ?? reaction.emoji.id ?? "",
-              });
-            }
-          },
-        );
+      const existingListener = registeredListeners.get(type);
+      if (existingListener) {
+        client.removeListener(discordEvent, existingListener);
       }
+
+      handlers.set(type, handler);
+
+      let listener: (...args: unknown[]) => void;
+
+      if (type === "message_create" || type === "message_update") {
+        listener = (message: unknown) => {
+          const h = handlers.get(type);
+          if (h) h(messageToEventData(message as Message | PartialMessage));
+        };
+      } else {
+        listener = (
+          reaction: unknown,
+          user: unknown,
+        ) => {
+          const h = handlers.get(type);
+          if (h) {
+            const r = reaction as MessageReaction | PartialMessageReaction;
+            const u = user as User | PartialUser;
+            h({
+              message_id: r.message.id,
+              channel_id: r.message.channelId,
+              guild_id: r.message.guildId ?? "",
+              author: {
+                id: u.id,
+                username: (u as User).username ?? "",
+                bot: u.bot ?? false,
+              },
+              content: "",
+              timestamp: new Date().toISOString(),
+              emoji: r.emoji.name ?? r.emoji.id ?? "",
+            });
+          }
+        };
+      }
+
+      registeredListeners.set(type, listener);
+      client.on(discordEvent, listener);
     },
 
     offEvent(type: EventType) {
       handlers.delete(type);
       const discordEvent = discordEventMap[type];
       if (discordEvent) {
-        client.removeAllListeners(discordEvent);
+        const listener = registeredListeners.get(type);
+        if (listener) {
+          client.removeListener(discordEvent, listener);
+          registeredListeners.delete(type);
+        }
       }
     },
 

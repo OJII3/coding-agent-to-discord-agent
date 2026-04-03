@@ -8,8 +8,6 @@ describe("ProcessManager", () => {
         exitCode: null,
         exited: new Promise(() => {}),
         kill: mock(() => {}),
-        stdout: { getReader: () => ({ read: () => new Promise(() => {}) }) },
-        stderr: { getReader: () => ({ read: () => new Promise(() => {}) }) },
       }));
 
       const { createProcessManager } = await import(
@@ -31,8 +29,6 @@ describe("ProcessManager", () => {
         exitCode: null,
         exited: new Promise(() => {}),
         kill: mock(() => {}),
-        stdout: { getReader: () => ({ read: () => new Promise(() => {}) }) },
-        stderr: { getReader: () => ({ read: () => new Promise(() => {}) }) },
       }));
 
       const { createProcessManager } = await import(
@@ -61,8 +57,6 @@ describe("ProcessManager", () => {
         exitCode: null,
         exited: exitedPromise,
         kill: mock(() => {}),
-        stdout: { getReader: () => ({ read: () => new Promise(() => {}) }) },
-        stderr: { getReader: () => ({ read: () => new Promise(() => {}) }) },
       }));
 
       const onExit = mock((_code: number) => {});
@@ -96,8 +90,6 @@ describe("ProcessManager", () => {
         exitCode: null,
         exited: exitedPromise,
         kill: mock(() => {}),
-        stdout: { getReader: () => ({ read: () => new Promise(() => {}) }) },
-        stderr: { getReader: () => ({ read: () => new Promise(() => {}) }) },
       }));
 
       const onExit = mock((_code: number) => {});
@@ -166,8 +158,6 @@ describe("ProcessManager", () => {
         exitCode: null,
         exited: new Promise(() => {}),
         kill: killMock,
-        stdout: { getReader: () => ({ read: () => new Promise(() => {}) }) },
-        stderr: { getReader: () => ({ read: () => new Promise(() => {}) }) },
       }));
 
       const { createProcessManager } = await import(

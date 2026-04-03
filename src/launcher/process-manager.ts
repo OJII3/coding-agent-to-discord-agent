@@ -1,10 +1,8 @@
-type SpawnFn = (cmd: string[], opts?: object) => {
+type SpawnFn = (cmd: string[]) => {
   pid: number;
   exitCode: number | null;
   exited: Promise<number>;
   kill: (signal?: number) => void;
-  stdout: ReadableStream;
-  stderr: ReadableStream;
 };
 
 interface ProcessManagerOptions {
@@ -37,6 +35,8 @@ export function createProcessManager({
         currentProcess = spawn([opts.command, ...opts.args]);
         watchProcess(currentProcess);
       }
+    }).catch((err) => {
+      console.error("Process exited with error:", err);
     });
   }
 

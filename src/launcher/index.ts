@@ -1,7 +1,6 @@
 import { loadConfig } from "../config/index.ts";
 import { createConfigGenerator } from "./config-generator.ts";
 import { createProcessManager } from "./process-manager.ts";
-import { Subprocess } from "bun";
 
 const config = loadConfig();
 
@@ -32,8 +31,6 @@ const processManager = createProcessManager({
       exitCode: proc.exitCode,
       exited: proc.exited,
       kill: (signal?: number) => proc.kill(signal),
-      stdout: proc.stdout as unknown as ReadableStream,
-      stderr: proc.stderr as unknown as ReadableStream,
     };
   },
   autoRestart: true,
