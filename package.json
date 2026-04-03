@@ -1,0 +1,23 @@
+{
+  "name": "coding-agent-to-discord-agent",
+  "module": "src/launcher/index.ts",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "start": "bun run src/launcher/index.ts",
+    "mcp-server": "bun run src/mcp-server/index.ts",
+    "check": "tsc --noEmit",
+    "test": "bun test"
+  },
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.29.0",
+    "discord.js": "14",
+    "zod": "3"
+  }
+}
